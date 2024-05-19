@@ -1,100 +1,115 @@
 package com.example.final_khang.data;
-
 import android.content.Context;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteOpenHelper;
+import android.widget.Toast;
 
+import com.example.final_khang.api.PostApi;
+import com.example.final_khang.api.UserApi;
 import com.example.final_khang.entity.Post;
 import com.example.final_khang.entity.User;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class DatabaseHelper extends SQLiteOpenHelper {
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
-    private static final String DATABASE_NAME = "mydatabase.db";
-    private static final int DATABASE_VERSION = 1;
+public class DatabaseHelper {
+
+    private UserApi userApi;
+    private PostApi postApi;
+    private Context context;
 
     public DatabaseHelper(Context context) {
-        super(context, DATABASE_NAME, null, DATABASE_VERSION);
+        this.context = context;
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl("http://localhost:8080/")
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+        userApi = retrofit.create(UserApi.class);
+        postApi = retrofit.create(PostApi.class);
     }
 
-    @Override
-    public void onCreate(SQLiteDatabase db) {
-        // Create tables
-        String createUserTable = "CREATE TABLE users (id INTEGER PRIMARY KEY, name TEXT, email TEXT)";
-        String createPostTable = "CREATE TABLE posts (id INTEGER PRIMARY KEY, title TEXT, content TEXT)";
-        db.execSQL(createUserTable);
-        db.execSQL(createPostTable);
-    }
-
-    @Override
-    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        // Drop old tables
-        db.execSQL("DROP TABLE IF EXISTS users");
-        db.execSQL("DROP TABLE IF EXISTS posts");
-        onCreate(db);
-    }
-
-    public List<User> searchUsers(String query) {
-        List<User> users = new ArrayList<>();
-        SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.rawQuery("SELECT * FROM users WHERE name LIKE ?", new String[]{"%" + query + "%"});
-
-        if (cursor.moveToFirst()) {
-            do {
-                User user = new User();
-                int id = cursor.getColumnIndex("id");
-                int email = cursor.getColumnIndex("email");
-                int username = cursor.getColumnIndex("name") ;
-               if(id <0 || email <0 || username <0)
-               {
-                   id =0;
-                   email = 0;
-                   username = 0;
-               }
-                user.setEmail(cursor.getString(email));
-                user.setUserID(cursor.getInt(id));
-                user.setUserName(cursor.getString(username));
-                users.add(user);
-            } while (cursor.moveToNext());
-        }
-        cursor.close();
-        return users;
-    }
-
-    public List<Post> searchPosts(String query) {
-        List<Post> posts = new ArrayList<>();
-        SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.rawQuery("SELECT * FROM posts WHERE title LIKE ? OR content LIKE ?", new String[]{"%" + query + "%", "%" + query + "%"});
-
-        if (cursor.moveToFirst()) {
-            do {
-                Post post = new Post();
-                int id = cursor.getColumnIndex("id");
-                int UserId = cursor.getColumnIndex("email");
-                int caption = cursor.getColumnIndex("name") ;
-                if(id <0 || UserId <0 || caption <0)
-                {
-                    id =0;
-                    UserId = 0;
-                    caption = 0;
+    public void searchUsers(String query, final UserListCallback callback) {
+        Call<List<User>> call = userApi.searchUsers(query);
+        call.enqueue(new Callback<List<User>>() {
+            @Override
+            public void onResponse(Call<List<User>> call, Response<List<User>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    callback.onSuccess(response.body());
+                } else {
+                    callback.onError("Failed to get users");
                 }
-                post.setId(cursor.getInt(id));
-                post.setUserId(cursor.getInt(UserId));
-                post.setCaption(cursor.getString(caption));
-                posts.add(post);
-            } while (cursor.moveToNext());
-        }
-        cursor.close();
-        return posts;
+            }
+
+            @Override
+            public void onFailure(Call<List<User>> call, Throwable t) {
+                callback.onError(t.getMessage());
+            }
+        });
     }
 
-    public List<Object> searchBoth(String query) {
-        List<Object> results = new ArrayList<>();
-        results.addAll(searchUsers(query));
-        results.addAll(searchPosts(query));
-        return results;
+    public void searchPosts(String query, final PostListCallback callback) {
+        Call<List<Post>> call = postApi.searchPosts(query);
+        call.enqueue(new Callback<List<Post>>() {
+            @Override
+            public void onResponse(Call<List<Post>> call, Response<List<Post>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    callback.onSuccess(response.body());
+                } else {
+                    callback.onError("Failed to get posts");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<Post>> call, Throwable t) {
+                callback.onError(t.getMessage());
+            }
+        });
+    }
+
+    public void searchBoth(String query, final SearchCallback callback) {
+        searchUsers(query, new UserListCallback() {
+            @Override
+            public void onSuccess(List<User> users) {
+                searchPosts(query, new PostListCallback() {
+                    @Override
+                    public void onSuccess(List<Post> posts) {
+                        List<Object> results = new ArrayList<>();
+                        results.addAll(users);
+                        results.addAll(posts);
+                        callback.onSuccess(results);
+                    }
+
+                    @Override
+                    public void onError(String error) {
+                        callback.onError(error);
+                    }
+                });
+            }
+
+            @Override
+            public void onError(String error) {
+                callback.onError(error);
+            }
+        });
+    }
+
+    // Define interfaces for callbacks
+    public interface UserListCallback {
+        void onSuccess(List<User> users);
+        void onError(String error);
+    }
+
+    public interface PostListCallback {
+        void onSuccess(List<Post> posts);
+        void onError(String error);
+    }
+
+    public interface SearchCallback {
+        void onSuccess(List<Object> results);
+        void onError(String error);
     }
 }

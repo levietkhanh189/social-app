@@ -9,6 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -48,18 +49,34 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
     @Override
     public void onBindViewHolder(@NonNull PostViewHolder holder, int position) {
         Post post = myListPost.get(position);
-        User user1 = userDAO.getUserByID(post.getUserId());
-        if (user1 != null) {
-            holder.username.setText(user1.getUserName());
-            holder.imgViewUser.setImageBitmap(BitmapFactory.decodeByteArray(user1.getImage(), 0, user1.getImage().length));
-        } else {
-            holder.username.setText("Unknown User");
-            holder.imgViewUser.setImageResource(R.drawable.profile_icon);
-        }
+
+        // Đặt các thông tin của bài viết trước
         holder.post_image.setImageBitmap(BitmapFactory.decodeByteArray(post.getImageUri(), 0, post.getImageUri().length));
         holder.caption_text.setText(post.getCaption());
         holder.updateLikeStatus(post);
+
+        // Lấy thông tin người dùng bằng cách sử dụng callback
+        userDAO.getUserByID(post.getUserId(), new UserDAO.UserCallback() {
+            @Override
+            public void onSuccess(User user) {
+                if (user != null) {
+                    holder.username.setText(user.getUserName());
+                    holder.imgViewUser.setImageBitmap(BitmapFactory.decodeByteArray(user.getImage(), 0, user.getImage().length));
+                } else {
+                    holder.username.setText("Unknown User");
+                    holder.imgViewUser.setImageResource(R.drawable.profile_icon);
+                }
+            }
+
+            @Override
+            public void onError(String error) {
+                holder.username.setText("Unknown User");
+                holder.imgViewUser.setImageResource(R.drawable.profile_icon);
+                Toast.makeText(holder.itemView.getContext(), "Error: " + error, Toast.LENGTH_SHORT).show();
+            }
+        });
     }
+
 
     @Override
     public int getItemCount() {
@@ -117,30 +134,58 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
         }
 
         private void updateLikeStatus(Post post) {
-            int likeCount = likeDAO.getLikeCount(post.getId());
-            likes_text.setText(String.valueOf(likeCount) + " likes");
-
             int userId = UserPreferences.getUserData(context).getUserID();
-            boolean isLikedByUser = likeDAO.isPostLikedByUser(userId, post.getId());
 
-            if (isLikedByUser) {
-                like_image.setImageResource(R.drawable.heart_clicked); // Đổi icon nếu đã like
-            } else {
-                like_image.setImageResource(R.drawable.heart); // Icon mặc định
-            }
+            likeDAO.getLikeCount(post.getId(), new LikeDAO.LikeCountCallback() {
+                @Override
+                public void onCount(int count) {
+                    likes_text.setText(String.valueOf(count) + " likes");
+                }
+
+                @Override
+                public void onError(String error) {
+                    Toast.makeText(context, "Error: " + error, Toast.LENGTH_SHORT).show();
+                }
+            });
+
+            likeDAO.isPostLikedByUser(userId, post.getId(), new LikeDAO.LikeStatusCallback() {
+                @Override
+                public void onStatus(boolean isLiked) {
+                    if (isLiked) {
+                        like_image.setImageResource(R.drawable.heart_clicked); // Đổi icon nếu đã like
+                    } else {
+                        like_image.setImageResource(R.drawable.heart); // Icon mặc định
+                    }
+                }
+
+                @Override
+                public void onError(String error) {
+                    Toast.makeText(context, "Error: " + error, Toast.LENGTH_SHORT).show();
+                }
+            });
         }
+
 
         private void handleLikeButtonClick(Post post) {
             int userId = UserPreferences.getUserData(context).getUserID();
-            boolean isLikedByUser = likeDAO.isPostLikedByUser(userId, post.getId());
 
-            if (isLikedByUser) {
-                likeDAO.deleteLike(userId, post.getId());
-            } else {
-                likeDAO.insertLike(new Like(userId, post.getId()));
-            }
+            likeDAO.isPostLikedByUser(userId, post.getId(), new LikeDAO.LikeStatusCallback() {
+                @Override
+                public void onStatus(boolean isLikedByUser) {
+                    if (isLikedByUser) {
+                        likeDAO.deleteLike(userId, post.getId());
+                    } else {
+                        likeDAO.insertLike(new Like(userId, post.getId()));
+                    }
+                    updateLikeStatus(post); // Cập nhật trạng thái like sau khi thực hiện thao tác
+                }
 
-            updateLikeStatus(post);
+                @Override
+                public void onError(String error) {
+                    Toast.makeText(context, "Error: " + error, Toast.LENGTH_SHORT).show();
+                }
+            });
         }
+
     }
 }

@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -39,11 +40,29 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
     @Override
     public void onBindViewHolder(@NonNull CommentViewHolder holder, int position) {
         Comment comment = commentList.get(position);
-        User user = userDAO.getUserByID(comment.getUserId());
-        holder.commentBody.setText(comment.getCommentBody()); // Set the comment text
-        holder.photoUser.setImageBitmap(BitmapFactory.decodeByteArray
-                (user.getImage(), 0, user.getImage().length));
+
+        // Đặt nội dung comment
+        holder.commentBody.setText(comment.getCommentBody());
+
+        // Lấy thông tin người dùng bằng cách sử dụng callback
+        userDAO.getUserByID(comment.getUserId(), new UserDAO.UserCallback() {
+            @Override
+            public void onSuccess(User user) {
+                if (user != null && user.getImage() != null) {
+                    holder.photoUser.setImageBitmap(BitmapFactory.decodeByteArray(user.getImage(), 0, user.getImage().length));
+                } else {
+                    holder.photoUser.setImageResource(R.drawable.profile_icon); // Icon mặc định nếu không có hình ảnh
+                }
+            }
+
+            @Override
+            public void onError(String error) {
+                holder.photoUser.setImageResource(R.drawable.profile_icon); // Icon mặc định trong trường hợp có lỗi
+                Toast.makeText(holder.itemView.getContext(), "Error: " + error, Toast.LENGTH_SHORT).show();
+            }
+        });
     }
+
 
     @Override
     public int getItemCount() {

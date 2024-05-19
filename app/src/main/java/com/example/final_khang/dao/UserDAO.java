@@ -1,119 +1,150 @@
 package com.example.final_khang.dao;
 
-import android.content.ContentValues;
 import android.content.Context;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
+import android.util.Base64;
+import android.widget.Toast;
 
-import com.example.final_khang.data.DBHelper;
+import com.example.final_khang.api.UserApi;
 import com.example.final_khang.entity.User;
 
+import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
+
 public class UserDAO {
-    SQLiteDatabase sqLiteDatabase;
-    SQLiteDatabase getSqLiteDatabase;
-    DBHelper dbHelper;
+
+    private UserApi userApi;
+    private Context context;
 
     public UserDAO(Context context) {
-        dbHelper = new DBHelper(context);
-        sqLiteDatabase = dbHelper.openDatabase();
-        getSqLiteDatabase = dbHelper.readDatabase();
+        this.context = context;
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl("http://localhost:8080/")
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+        userApi = retrofit.create(UserApi.class);
     }
-
     public boolean insertUser(User user) {
-        ContentValues contentValues = new ContentValues();
-        contentValues.put(dbHelper.USER_EMAIL, user.getEmail());
-        contentValues.put(dbHelper.USER_NAME, user.getUserName());
-        contentValues.put(dbHelper.USER_PASSWORD, user.getPassword());
-        contentValues.put(dbHelper.USER_BIO, user.getBio());
-        contentValues.put(dbHelper.USER_IMAGE, user.getImage());
-        long result = sqLiteDatabase.insert("users", null, contentValues);
-        if (result == -1) return false;
-        else return true;
-    }
-
-    // Hàm check Email có tồn tại hay chưa.
-    public boolean checkEmailExists(String email) {
-        Cursor cursor = sqLiteDatabase.rawQuery("select * from users where email = ?", new String[]{email});
-        if (cursor.getCount() > 0)
-            return true;
-        else return false;
-    }
-
-    // Hàm check Account user.
-    public User getUserByEmailAndPassword(String email, String password) {
-        User user = null;
-        Cursor cursor = getSqLiteDatabase.rawQuery("SELECT * FROM users WHERE email = ? AND password = ?", new String[]{email, password});
-        try {
-            if (cursor.moveToFirst()) {
-                int idIndex = cursor.getColumnIndex(dbHelper.USER_ID);
-                int emailIndex = cursor.getColumnIndex(dbHelper.USER_EMAIL);
-                int passwordIndex = cursor.getColumnIndex(dbHelper.USER_PASSWORD);
-                int nameIndex = cursor.getColumnIndex(dbHelper.USER_NAME);
-                int imageIndex = cursor.getColumnIndex(dbHelper.USER_IMAGE);
-                int bioIndex = cursor.getColumnIndex(dbHelper.USER_BIO);
-                if (idIndex != -1 && emailIndex != -1 && passwordIndex != -1
-                        && nameIndex != -1 && imageIndex != -1 && bioIndex != -1) {
-                    int id = cursor.getInt(idIndex);
-                    String emailUser = cursor.getString(emailIndex);
-                    String passwordUser = cursor.getString(passwordIndex);
-                    String nameUser = cursor.getString(nameIndex);
-                    String bioUser = cursor.getString(bioIndex);
-                    byte[] imageUser = cursor.getBlob(imageIndex);
-                    user = new User(emailUser, passwordUser, nameUser, imageUser, bioUser);
-                    user.setUserID(id);
+        Call<User> call = userApi.createUser(user);
+        call.enqueue(new Callback<User>() {
+            @Override
+            public void onResponse(Call<User> call, Response<User> response) {
+                if (response.isSuccessful()) {
+                    Toast.makeText(context, "User created successfully", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(context, "Failed to create user", Toast.LENGTH_SHORT).show();
                 }
             }
-        } finally {
-            cursor.close();
-        }
-        return user;
+
+            @Override
+            public void onFailure(Call<User> call, Throwable t) {
+                Toast.makeText(context, "Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+        return true; // Thay đổi này không thực sự phản ánh kết quả của gọi API, bạn có thể cải thiện bằng cách sử dụng Future hoặc LiveData
     }
 
-    // Hàm xóa tài khoản User
+    public boolean checkEmailExists(String email) {
+        final boolean[] exists = {false};
+        Call<Boolean> call = userApi.checkEmailExists(email);
+        call.enqueue(new Callback<Boolean>() {
+            @Override
+            public void onResponse(Call<Boolean> call, Response<Boolean> response) {
+                if (response.isSuccessful()) {
+                    exists[0] = response.body() != null && response.body();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Boolean> call, Throwable t) {
+                Toast.makeText(context, "Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+        return exists[0]; // Thay đổi này không thực sự phản ánh kết quả của gọi API, bạn có thể cải thiện bằng cách sử dụng Future hoặc LiveData
+    }
+
+    public User getUserByEmailAndPassword(String email, String password) {
+        final User[] user = {null};
+        Call<User> call = userApi.getUserByEmailAndPassword(email, password);
+        call.enqueue(new Callback<User>() {
+            @Override
+            public void onResponse(Call<User> call, Response<User> response) {
+                if (response.isSuccessful()) {
+                    user[0] = response.body();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<User> call, Throwable t) {
+                Toast.makeText(context, "Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+        return user[0]; // Thay đổi này không thực sự phản ánh kết quả của gọi API, bạn có thể cải thiện bằng cách sử dụng Future hoặc LiveData
+    }
+
     public void deleteUser(int userID) {
-        getSqLiteDatabase.delete(dbHelper.TABLE_USER, dbHelper.USER_ID + "=?",
-                new String[]{String.valueOf(userID)});
+        Call<Void> call = userApi.deleteUser(userID);
+        call.enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                if (response.isSuccessful()) {
+                    Toast.makeText(context, "User deleted successfully", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(context, "Failed to delete user", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Void> call, Throwable t) {
+                Toast.makeText(context, "Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+    public void getUserByID(int userID, final UserCallback callback) {
+        Call<User> call = userApi.getUserById(userID);
+        call.enqueue(new Callback<User>() {
+            @Override
+            public void onResponse(Call<User> call, Response<User> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    callback.onSuccess(response.body());
+                } else {
+                    callback.onError("Failed to get user by ID");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<User> call, Throwable t) {
+                callback.onError(t.getMessage());
+            }
+        });
     }
 
-    // Hàm update user.
     public void updateUser(User user) {
-        ContentValues contentValues = new ContentValues();
-        contentValues.put(dbHelper.USER_NAME, user.getUserName());
-        contentValues.put(dbHelper.USER_PASSWORD, user.getPassword());
-        contentValues.put(dbHelper.USER_BIO, user.getBio());
-        sqLiteDatabase.update(dbHelper.TABLE_USER, contentValues, dbHelper.USER_ID + "=?",
-                new String[]{String.valueOf(user.getUserID())});
+        Call<User> call = userApi.updateUser(user.getUserID(), user);
+        call.enqueue(new Callback<User>() {
+            @Override
+            public void onResponse(Call<User> call, Response<User> response) {
+                if (response.isSuccessful()) {
+                    Toast.makeText(context, "User updated successfully", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(context, "Failed to update user", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<User> call, Throwable t) {
+                Toast.makeText(context, "Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
-
-    // Hàm select user theo userID
-    public User getUserByID(int userId) {
-        SQLiteDatabase db = dbHelper.getReadableDatabase();
-        Cursor cursor = db.query(
-                dbHelper.TABLE_USER,
-                new String[]{dbHelper.USER_ID, dbHelper.USER_NAME, dbHelper.USER_IMAGE},
-                dbHelper.USER_ID + "=?",
-                new String[]{String.valueOf(userId)},
-                null,
-                null,
-                null
-        );
-
-        User user = null;
-        if (cursor.moveToFirst()) {
-            int idIndex = cursor.getColumnIndex(dbHelper.USER_ID);
-            int nameIndex = cursor.getColumnIndex(dbHelper.USER_NAME);
-            int imageIndex = cursor.getColumnIndex(dbHelper.USER_IMAGE);
-            int id = cursor.getInt(idIndex);
-            String name = cursor.getString(nameIndex);
-            byte[] imageUser = cursor.getBlob(imageIndex);
-            user = new User();
-            user.setUserID(id);
-            user.setUserName(name);
-            user.setImage(imageUser);
-        }
-        cursor.close();
-        db.close();
-        return user;
+    public interface UserCallback {
+        void onSuccess(User user);
+        void onError(String error);
     }
+
 }

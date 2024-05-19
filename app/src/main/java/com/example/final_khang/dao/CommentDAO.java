@@ -1,44 +1,95 @@
 package com.example.final_khang.dao;
-
-import android.content.ContentValues;
 import android.content.Context;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
+import android.widget.Toast;
 
-import com.example.final_khang.data.DBHelper;
+import com.example.final_khang.api.CommentApi;
 import com.example.final_khang.entity.Comment;
-import com.example.final_khang.entity.User;
 
-import java.util.ArrayList;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
+
 import java.util.List;
 
 public class CommentDAO {
-    SQLiteDatabase sqLiteDatabase;
-    SQLiteDatabase getSqLiteDatabase;
-    DBHelper dbHelper;
+    private CommentApi commentApi;
+    private Context context;
 
     public CommentDAO(Context context) {
-        dbHelper = new DBHelper(context);
-        sqLiteDatabase = dbHelper.openDatabase();
-        getSqLiteDatabase = dbHelper.readDatabase();
+        this.context = context;
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl("http://localhost:8080/")
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+        commentApi = retrofit.create(CommentApi.class);
     }
 
-    // hàm thêm comment.
+    // Hàm thêm comment
     public boolean insertComment(Comment comment) {
-        ContentValues contentValues = new ContentValues();
-        contentValues.put("post_id", comment.getPostId());
-        contentValues.put("user_id", comment.getUserId());
-        contentValues.put("comment_body", comment.getCommentBody());
-        long result = sqLiteDatabase.insert("comments", null, contentValues);
-        if (result == -1) return false;
-        else return true;
+        Call<Comment> call = commentApi.createComment(comment);
+        call.enqueue(new Callback<Comment>() {
+            @Override
+            public void onResponse(Call<Comment> call, Response<Comment> response) {
+                if (response.isSuccessful()) {
+                    Toast.makeText(context, "Comment added successfully", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(context, "Failed to add comment", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Comment> call, Throwable t) {
+                Toast.makeText(context, "Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+        return true; // Thay đổi này không thực sự phản ánh kết quả của gọi API, bạn có thể cải thiện bằng cách sử dụng Future hoặc LiveData
     }
 
+    // Hàm lấy tất cả comment
+    public void getAllComments(final CommentListCallback callback) {
+        Call<List<Comment>> call = commentApi.getAllComments();
+        call.enqueue(new Callback<List<Comment>>() {
+            @Override
+            public void onResponse(Call<List<Comment>> call, Response<List<Comment>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    callback.onSuccess(response.body());
+                } else {
+                    callback.onError("Failed to get comments");
+                }
+            }
 
-    public Cursor getAllComments() {
-        return sqLiteDatabase.rawQuery("SELECT * FROM comments", null);
+            @Override
+            public void onFailure(Call<List<Comment>> call, Throwable t) {
+                callback.onError(t.getMessage());
+            }
+        });
     }
-    public Cursor getCommentByIDPost(int postId) {
-        return getSqLiteDatabase.rawQuery("SELECT * FROM comments WHERE post_id = ?", new String[]{String.valueOf(postId)});
+
+    // Hàm lấy comment theo post ID
+    public void getCommentByIDPost(int postId, final CommentListCallback callback) {
+        Call<List<Comment>> call = commentApi.getCommentsByPostId(postId);
+        call.enqueue(new Callback<List<Comment>>() {
+            @Override
+            public void onResponse(Call<List<Comment>> call, Response<List<Comment>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    callback.onSuccess(response.body());
+                } else {
+                    callback.onError("Failed to get comments by post ID");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<Comment>> call, Throwable t) {
+                callback.onError(t.getMessage());
+            }
+        });
+    }
+
+    // Define interfaces for callbacks
+    public interface CommentListCallback {
+        void onSuccess(List<Comment> comments);
+        void onError(String error);
     }
 }

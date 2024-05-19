@@ -20,6 +20,7 @@ import com.example.final_khang.entity.Post;
 import com.example.final_khang.entity.User;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class Fragment_Home extends Fragment {
 
@@ -61,18 +62,22 @@ public class Fragment_Home extends Fragment {
     }
 
     void storeDataInArrays() {
-        Cursor cursor = postDAO.getAllPosts();
-        if (cursor.getCount() == 0) {
-            Toast.makeText(getContext(), "No data", Toast.LENGTH_SHORT).show();
-        } else {
-            while (cursor.moveToNext()) {
-                int userID = cursor.getInt(1);
-                String content = cursor.getString(2);
-                byte[] imgUrl = cursor.getBlob(3);
-                Post post = new Post(userID, content, imgUrl);
-                posts.add(post);
+        postDAO.getAllPosts(new PostDAO.PostListCallback() {
+            @Override
+            public void onSuccess(List<Post> postsFromApi) {
+                if (postsFromApi == null || postsFromApi.isEmpty()) {
+                    Toast.makeText(getContext(), "No data", Toast.LENGTH_SHORT).show();
+                } else {
+                    posts.clear();
+                    posts.addAll(postsFromApi);
+                }
             }
-        }
+
+            @Override
+            public void onError(String error) {
+                Toast.makeText(getContext(), "Error: " + error, Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
 

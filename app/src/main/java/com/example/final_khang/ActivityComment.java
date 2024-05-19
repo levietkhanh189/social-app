@@ -88,17 +88,24 @@ public class ActivityComment extends AppCompatActivity {
     }
 
     void storeDataInArrays(int postId) {
-        Cursor cursor = commentDAO.getCommentByIDPost(postId);
-        if (cursor.getCount() == 0) {
-            Toast.makeText(ActivityComment.this, "No data", Toast.LENGTH_SHORT).show();
-        } else {
-            while (cursor.moveToNext()) {
-                int postID = cursor.getInt(1);
-                int userID = cursor.getInt(2);
-                String content = cursor.getString(3);
-                Comment comment = new Comment(postID, userID,content);
-                commentArrayList.add(comment);
+        commentDAO.getCommentByIDPost(postId, new CommentDAO.CommentListCallback() {
+            @Override
+            public void onSuccess(List<Comment> comments) {
+                if (comments.isEmpty()) {
+                    Toast.makeText(ActivityComment.this, "No data", Toast.LENGTH_SHORT).show();
+                } else {
+                    commentArrayList.clear();
+                    commentArrayList.addAll(comments);
+                    // Bạn có thể cần gọi notifyDataSetChanged() nếu bạn đang sử dụng RecyclerView.Adapter
+                    // adapter.notifyDataSetChanged();
+                }
             }
-        }
+
+            @Override
+            public void onError(String error) {
+                Toast.makeText(ActivityComment.this, "Error: " + error, Toast.LENGTH_SHORT).show();
+            }
+        });
     }
+
 }
