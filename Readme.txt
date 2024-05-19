@@ -1,1 +1,1 @@
-Hoan thien xong sequence
+Hoan thien xong sequence!
