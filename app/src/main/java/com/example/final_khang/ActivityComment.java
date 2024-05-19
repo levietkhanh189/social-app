@@ -25,7 +25,7 @@ public class ActivityComment extends AppCompatActivity {
     //Variables
     private RecyclerView recyclerViewCom;
     private EditText edtComment;
-    private ImageView imgViewSend;
+    private ImageView imgViewSend, imgViewBack;
     private CommentDAO commentDAO;
     private CommentAdapter commentAdapter;
     private List<Comment> commentArrayList;
@@ -70,6 +70,13 @@ public class ActivityComment extends AppCompatActivity {
                 } else {
                     Toast.makeText(ActivityComment.this, "Comment thất bại!", Toast.LENGTH_SHORT).show();
                 }
+            }
+        });
+
+        imgViewBack.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
             }
         });
     }
