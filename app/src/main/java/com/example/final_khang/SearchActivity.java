@@ -11,7 +11,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.final_khang.adapter.SearchAdapter;
-import com.example.final_khang.data.DatabaseHelper;
+import com.example.final_khang.dao.SearchDAO;
 
 import java.util.List;
 public class SearchActivity extends AppCompatActivity {
@@ -19,19 +19,22 @@ public class SearchActivity extends AppCompatActivity {
     private String searchMode = "both"; // default to search both
     private RecyclerView recyclerView;
     private SearchAdapter searchAdapter;
-    private DatabaseHelper databaseHelper;
+    private SearchDAO searchDAO;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.search); // Ensure this matches your XML layout file name
+
         Toolbar toolbar = findViewById(R.id.toolbar);
+
         setSupportActionBar(toolbar);
         searchView = findViewById(R.id.searchView);
+
         recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         searchAdapter = new SearchAdapter();
         recyclerView.setAdapter(searchAdapter);
-        databaseHelper = new DatabaseHelper(this);
+        searchDAO = new SearchDAO(this);
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
@@ -76,13 +79,13 @@ public class SearchActivity extends AppCompatActivity {
         List<?> results;
         switch (searchMode) {
             case "user":
-                results = databaseHelper.searchUsers(query);
+                results = searchDAO.searchUsers(query);
                 break;
             case "post":
-                results = databaseHelper.searchPosts(query);
+                results = searchDAO.searchPosts(query);
                 break;
             default:
-                results = databaseHelper.searchBoth(query);
+                results = searchDAO.searchBoth(query);
                 break;
         }
         if (results != null && !results.isEmpty()) {

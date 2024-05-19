@@ -38,7 +38,8 @@ public class MainActivity extends AppCompatActivity {
                 } else if (item.getItemId() == R.id.nav_profile) {
                     replaceFragmentContent(new Fragment_Profile());
                 } else if (item.getItemId() == R.id.nav_search) {
-                    Toast.makeText(MainActivity.this, "Click vào Fragment Search", Toast.LENGTH_SHORT).show();
+                    Intent intent = new Intent(MainActivity.this, SearchActivity.class);
+                    startActivity(intent);
                 } else if (item.getItemId() == R.id.nav_notifications) {
                     Toast.makeText(MainActivity.this, "Click vào Fragment Notifications", Toast.LENGTH_SHORT).show();
                 } else if (item.getItemId() == R.id.nav_add_post) {
