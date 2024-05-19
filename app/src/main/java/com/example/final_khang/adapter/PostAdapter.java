@@ -85,7 +85,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
             imgComment = itemView.findViewById(R.id.comment_image);
             like_image = itemView.findViewById(R.id.like_image);
 
-            if (imgComment != null) {
+            if(imgComment!=null){
                 imgComment.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -100,8 +100,6 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
                         }
                     }
                 });
-            } else {
-                Log.e("PostAdapter", "imgComment is null, unable to set OnClickListener");
             }
 
             like_image.setOnClickListener(new View.OnClickListener() {

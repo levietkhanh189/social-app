@@ -233,4 +233,12 @@
 
     </ScrollView>
 
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recycler_viewPerson"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/scroll_view">
+
+    </androidx.recyclerview.widget.RecyclerView>
+
 </RelativeLayout>

@@ -41,6 +41,7 @@ public class Fragment_Home extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment__home, container, false);
+
         //Tạo postDAO.
         postDAO = new PostDAO(getContext());
         //MappingUI()

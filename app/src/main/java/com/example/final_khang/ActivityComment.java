@@ -67,6 +67,8 @@ public class ActivityComment extends AppCompatActivity {
                     recyclerViewCom.setAdapter(commentAdapter);
                     recyclerViewCom.setLayoutManager(new LinearLayoutManager(ActivityComment.this));
                     Toast.makeText(ActivityComment.this, "Comment thành công!", Toast.LENGTH_SHORT).show();
+                    Intent intent1 = new Intent(ActivityComment.this, MainActivity.class);
+                    startActivity(intent1);
                 } else {
                     Toast.makeText(ActivityComment.this, "Comment thất bại!", Toast.LENGTH_SHORT).show();
                 }
