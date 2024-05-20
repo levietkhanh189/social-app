@@ -11,6 +11,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -68,6 +69,8 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
                 if (adapterPosition != RecyclerView.NO_POSITION) {
                     Intent intent = new Intent(context, ActivityComment.class);
                     User user = UserPreferences.getUserData(context);
+                    Toast.makeText(context,  "ID POST = " +myListPost.get(adapterPosition).getId(), Toast.LENGTH_SHORT).show();
+
                     intent.putExtra("postId", myListPost.get(adapterPosition).getId());
                     intent.putExtra("userId", user.getUserID());
                     context.startActivity(intent);
