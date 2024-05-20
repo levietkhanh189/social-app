@@ -25,7 +25,8 @@ public class ActivityComment extends AppCompatActivity {
     //Variables
     private RecyclerView recyclerViewCom;
     private EditText edtComment;
-    private ImageView imgViewSend, imgViewBack;
+    private ImageView imgViewSend;
+    private  ImageView imgViewBack;
     private CommentDAO commentDAO;
     private CommentAdapter commentAdapter;
     private List<Comment> commentArrayList;
@@ -55,7 +56,7 @@ public class ActivityComment extends AppCompatActivity {
         commentAdapter = new CommentAdapter(ActivityComment.this, commentArrayList);
         recyclerViewCom.setAdapter(commentAdapter);
         recyclerViewCom.setLayoutManager(new LinearLayoutManager(ActivityComment.this));
-
+        Intent intent1 = new Intent(ActivityComment.this, MainActivity.class);
         imgViewSend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -67,7 +68,6 @@ public class ActivityComment extends AppCompatActivity {
                     recyclerViewCom.setAdapter(commentAdapter);
                     recyclerViewCom.setLayoutManager(new LinearLayoutManager(ActivityComment.this));
                     Toast.makeText(ActivityComment.this, "Comment thành công!", Toast.LENGTH_SHORT).show();
-                    Intent intent1 = new Intent(ActivityComment.this, MainActivity.class);
                     startActivity(intent1);
                 } else {
                     Toast.makeText(ActivityComment.this, "Comment thất bại!", Toast.LENGTH_SHORT).show();
@@ -78,7 +78,7 @@ public class ActivityComment extends AppCompatActivity {
         imgViewBack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                finish();
+                startActivity(intent1);
             }
         });
     }
@@ -87,6 +87,7 @@ public class ActivityComment extends AppCompatActivity {
         recyclerViewCom = (RecyclerView) findViewById(R.id.recycler_view_comment);
         edtComment = (EditText) findViewById(R.id.edtComment);
         imgViewSend = (ImageView) findViewById(R.id.imgView_Send);
+        imgViewBack = (ImageView) findViewById(R.id.imgView_Back);
     }
 
     void storeDataInArrays(int postId) {

@@ -81,6 +81,7 @@ public class UserDAO {
         contentValues.put(dbHelper.USER_NAME, user.getUserName());
         contentValues.put(dbHelper.USER_PASSWORD, user.getPassword());
         contentValues.put(dbHelper.USER_BIO, user.getBio());
+        contentValues.put(dbHelper.USER_IMAGE, user.getImage());
         sqLiteDatabase.update(dbHelper.TABLE_USER, contentValues, dbHelper.USER_ID + "=?",
                 new String[]{String.valueOf(user.getUserID())});
     }

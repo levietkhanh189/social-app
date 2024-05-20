@@ -52,15 +52,16 @@
         android:padding="10dp"
         android:src="@drawable/heart"/>
 
-    <ImageView
+    <ImageButton
         android:id="@+id/comment_image"
+        android:layout_width="45dp"
+        android:layout_height="45dp"
+        android:padding="10dp"
+        android:src="@drawable/comment"
+        app:layout_constraintBottom_toBottomOf="@id/like_image"
         app:layout_constraintStart_toEndOf="@id/like_image"
         app:layout_constraintTop_toTopOf="@id/like_image"
-        app:layout_constraintBottom_toBottomOf="@id/like_image"
-        android:layout_height="45dp"
-        android:layout_width="45dp"
-        android:padding="10dp"
-        android:src="@drawable/ic_comments_border"/>
+        tools:ignore="TouchTargetSizeCheck,SpeakableTextPresentCheck" />
 
     <ImageView
         android:id="@+id/share_image"
