@@ -4,6 +4,7 @@ import android.database.Cursor;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -41,6 +42,7 @@ public class Fragment_Home extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment__home, container, false);
+
         //Tạo postDAO.
         postDAO = new PostDAO(getContext());
         //MappingUI()
@@ -51,6 +53,10 @@ public class Fragment_Home extends Fragment {
 
         postAdapter = new PostAdapter(getContext(), posts);
         recycler_view_home.setLayoutManager(new LinearLayoutManager(getContext()));
+
+        RecyclerView.ItemDecoration itemDecoration = new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL);
+        recycler_view_home.addItemDecoration(itemDecoration);
+
         recycler_view_home.setAdapter(postAdapter);
 
         return view;

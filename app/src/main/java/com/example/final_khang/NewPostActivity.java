@@ -86,7 +86,7 @@ public class NewPostActivity extends Activity {
 
                     // Kiểm tra kết quả và chuyển sang màn hình khác nếu cần
                     if (isPostInserted) {
-                        startActivity(new Intent(NewPostActivity.this, Activity_EditProfile.class));
+                        startActivity(new Intent(NewPostActivity.this, MainActivity.class));
                         Toast.makeText(NewPostActivity.this, "Post added successfully", Toast.LENGTH_SHORT).show();
                     } else {
                         Toast.makeText(NewPostActivity.this, "Failed to add post", Toast.LENGTH_SHORT).show();

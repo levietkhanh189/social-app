@@ -96,6 +96,9 @@ public class DBHelper extends SQLiteOpenHelper {
                 "FOREIGN KEY(" + LIKE_USER_ID + ") REFERENCES " + TABLE_USER + "(" + USER_ID + "), " +
                 "FOREIGN KEY(" + LIKE_POST_ID + ") REFERENCES " + TABLE_POSTS + "(" + POST_ID + "))";
         db.execSQL(createTable_Likes);
+
+        //Setup TiengViet.
+        db.execSQL("PRAGMA encoding = 'UTF-8';");
     }
 
     @Override

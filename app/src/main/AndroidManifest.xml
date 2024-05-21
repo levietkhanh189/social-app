@@ -21,29 +21,10 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Final_Khang"
         tools:targetApi="31">
+
         <activity
             android:name=".SearchActivity"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-        <activity
-            android:name=".ActivityComment"
             android:exported="false" />
-
-        <provider
-            android:name="androidx.core.content.FileProvider"
-            android:authorities="com.example.final_khang.fileprovider"
-            android:exported="false"
-            android:grantUriPermissions="true">
-            <meta-data
-                android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@drawable/file_paths" />
-        </provider>
-
         <activity
             android:name=".Activity_EditProfile"
             android:exported="false" />
@@ -64,9 +45,12 @@
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+        <activity
+            android:name=".ActivityComment"
+            android:exported="false">
         </activity>
     </application>
 

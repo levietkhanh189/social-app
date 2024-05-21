@@ -7,8 +7,11 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -58,6 +61,23 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
         }
         holder.post_image.setImageBitmap(BitmapFactory.decodeByteArray(post.getImageUri(), 0, post.getImageUri().length));
         holder.caption_text.setText(post.getCaption());
+
+        holder.imgComment.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int adapterPosition = holder.getAdapterPosition();
+                if (adapterPosition != RecyclerView.NO_POSITION) {
+                    Intent intent = new Intent(context, ActivityComment.class);
+                    User user = UserPreferences.getUserData(context);
+                    Toast.makeText(context,  "ID POST = " +myListPost.get(adapterPosition).getId(), Toast.LENGTH_SHORT).show();
+
+                    intent.putExtra("postId", myListPost.get(adapterPosition).getId());
+                    intent.putExtra("userId", user.getUserID());
+                    context.startActivity(intent);
+                }
+            }
+        });
+
         holder.updateLikeStatus(post);
     }
 
@@ -72,9 +92,8 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
         private TextView caption_text;
         private ImageView imgViewUser;
         private TextView likes_text;
-        private ImageView imgComment;
+        private ImageButton imgComment;
         private ImageView like_image;
-
         public PostViewHolder(@NonNull View itemView) {
             super(itemView);
             username = itemView.findViewById(R.id.username_text);
@@ -84,25 +103,6 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
             imgViewUser = itemView.findViewById(R.id.user_photo_image);
             imgComment = itemView.findViewById(R.id.comment_image);
             like_image = itemView.findViewById(R.id.like_image);
-
-            if (imgComment != null) {
-                imgComment.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        int position = getAdapterPosition();
-                        if (position != RecyclerView.NO_POSITION) {
-                            Post post = myListPost.get(position);
-                            Intent intent = new Intent(context, ActivityComment.class);
-                            User user = UserPreferences.getUserData(context);
-                            intent.putExtra("postId", post.getId());
-                            intent.putExtra("userId", user.getUserID());
-                            context.startActivity(intent);
-                        }
-                    }
-                });
-            } else {
-                Log.e("PostAdapter", "imgComment is null, unable to set OnClickListener");
-            }
 
             like_image.setOnClickListener(new View.OnClickListener() {
                 @Override

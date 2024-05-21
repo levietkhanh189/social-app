@@ -31,6 +31,7 @@ public class Post {
         this.imageUri = imageUri;
     }
 
+    public Post(){}
     // Getters and Setters
 
     public int getId() {

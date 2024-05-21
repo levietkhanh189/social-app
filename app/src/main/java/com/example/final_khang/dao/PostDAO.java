@@ -49,6 +49,6 @@ public class PostDAO {
     }
 
     public Cursor getAllPostsByUserId(int userId) {
-        return sqLiteDatabase.rawQuery("SELECT * FROM posts WHERE user_id=?", new String[]{String.valueOf(userId)});
+        return sqLiteDatabase.rawQuery("SELECT * FROM posts WHERE idUser=?", new String[]{String.valueOf(userId)});
     }
 }

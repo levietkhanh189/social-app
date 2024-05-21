@@ -4,52 +4,72 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:gravity="center"
     android:padding="16dp"
     >
 
-    <TextView
-        android:textStyle="bold"
-        android:layout_gravity="center"
-        android:textAlignment="center"
-        android:textSize="60sp"
-        android:textColor="@color/black"
-        android:text="Login"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
-
-    <EditText
-        android:id="@+id/edtEmailLo"
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="50dp"
-        android:hint="Email"
-        tools:ignore="TouchTargetSizeCheck" />
+        android:layout_height="wrap_content">
+        <ImageView
+            android:layout_width="100dp"
+            android:layout_height="50dp"
+            android:src="@drawable/instagram"
+            android:layout_alignParentLeft="true"
+            />
+    </RelativeLayout>
 
-    <EditText
-        android:id="@+id/edtPasswordLo"
+    <LinearLayout
+        android:orientation="vertical"
+        android:gravity="center"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Password"
-        android:inputType="textPassword"
-        android:minHeight="48dp" />
+        android:layout_height="match_parent">
+        <TextView
+            android:textStyle="bold"
+            android:layout_gravity="center"
+            android:textAlignment="center"
+            android:textSize="60sp"
+            android:textColor="@color/black"
+            android:text="Login"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+        <EditText
+            android:id="@+id/edtEmailLo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="50dp"
+            android:hint="Email"
+            android:layout_marginBottom="14dp"
+            android:minHeight="48dp"
+            android:background="@drawable/edit_text_border"
+            tools:ignore="TouchTargetSizeCheck" />
+
+        <EditText
+            android:id="@+id/edtPasswordLo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Password"
+            android:background="@drawable/edit_text_border"
+            android:inputType="textPassword"
+            android:minHeight="48dp" />
 
 
-    <Button
-        android:layout_marginTop="30dp"
-        android:id="@+id/btnLogin"
-        android:text="Login"
-        android:textStyle="bold"
-        android:layout_width="350dp"
-        android:layout_height="wrap_content"/>
+        <Button
+            android:layout_marginTop="30dp"
+            android:id="@+id/btnLogin"
+            android:text="Login"
+            android:textStyle="bold"
+            android:layout_width="350dp"
+            android:layout_height="wrap_content"/>
 
-    <TextView
-        android:layout_marginTop="10dp"
-        android:id="@+id/txtGotoRegister"
-        android:textSize="16sp"
-        android:textStyle="bold"
-        android:text="Do you already have an account?Register"
-        android:textAlignment="center"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        <TextView
+            android:layout_marginTop="10dp"
+            android:id="@+id/txtGotoRegister"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:text="Do you already have an account?Register"
+            android:textAlignment="center"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+    </LinearLayout>
 </LinearLayout>
